@@ -6,7 +6,6 @@
 #include <ArduinoJson.h>
 #include "WiFi.h"
 
-// The MQTT topics that this device should publish/subscribe
 #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
 
@@ -37,16 +36,14 @@ void connectAWS()
   }
 
   Serial.println("Connecting AWS");
-  // Configure WiFiClientSecure to use the AWS IoT device credentials
+
   net.setCACert(AWS_CERT_CA);
   net.setCertificate(AWS_CERT_CRT);
   net.setPrivateKey(AWS_CERT_PRIVATE);
 
   Serial.println("Connecting to Endpoint");
-  // Connect to the MQTT broker on the AWS endpoint we defined earlier
   client.setServer(AWS_IOT_ENDPOINT, 8883);
 
-  // Create a message handler
   client.setCallback(messageHandler);
 
   Serial.print("Connecting to AWS IOT");
@@ -62,7 +59,6 @@ void connectAWS()
   }
 
   Serial.print("Subscribing to the topic");
-  // Subscribe to a topic
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
   Serial.println("AWS IoT Connected!");
@@ -72,9 +68,8 @@ void publishMessage()
 {
   StaticJsonDocument<200> doc;
   doc["time"] = millis();
-  doc["sensor_a0"] = analogRead(0);
   char jsonBuffer[512];
-  serializeJson(doc, jsonBuffer); // print to client
+  serializeJson(doc, jsonBuffer);
 
   client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
   Serial.println("published");
